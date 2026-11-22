@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Just Analyze</title>
+<link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+<noscript><p class="noscript">JavaScript is required to use Just Analyze. Please enable JavaScript in your browser.</p></noscript>
+
+<header class="topbar">
+  <img src="/static/assets/logo.png" alt="Just Analyze" id="logo">
+</header>
+
+<div class="layout">
+  <nav class="sidebar" aria-label="Main navigation">
+    <ul>
+      <li><a href="#/dashboard" data-route="dashboard">Dashboard</a></li>
+      <li><a href="#/billing" data-route="billing">Billing</a></li>
+      <li><a href="#/products" data-route="products">Products</a></li>
+      <li><a href="#/customers" data-route="customers">Customers</a></li>
+      <li><a href="#/payments" data-route="payments">Payments</a></li>
+      <li><a href="#/expenses" data-route="expenses">Expenses</a></li>
+      <li><a href="#/purchases" data-route="purchases">Purchases</a></li>
+      <li><a href="#/cashflow" data-route="cashflow">Cash Flow</a></li>
+      <li><a href="#/reports" data-route="reports">Reports</a></li>
+    </ul>
+  </nav>
+
+  <main id="app">
+
+    <!-- Dashboard -->
+    <section class="screen" id="screen-dashboard">
+      <h1>Dashboard</h1>
+      <div class="toolbar">
+        <label for="period-select">Period</label>
+        <select id="period-select">
+          <option value="today">Today</option>
+          <option value="month" selected>Month</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+      <div id="dash-cards"></div>
+      <h2>Health</h2>
+      <div id="dash-health"></div>
+      <h2>Low stock</h2>
+      <div id="dash-lowstock"></div>
+    </section>
+
+    <!-- Billing -->
+    <section class="screen" id="screen-billing">
+      <h1>Billing</h1>
+
+      <h2>Customer</h2>
+      <div class="field-row">
+        <label for="cust-search">Search customer</label>
+        <input type="search" id="cust-search" autocomplete="off">
+      </div>
+      <div id="cust-results"></div>
+      <div id="cust-selected"></div>
+
+      <details>
+        <summary>New customer</summary>
+        <form id="new-cust-form">
+          <label for="nc-name">Name</label>
+          <input type="text" id="nc-name" name="name" required>
+          <label for="nc-phone">Phone</label>
+          <input type="tel" id="nc-phone" name="phone">
+          <label for="nc-address">Address</label>
+          <textarea id="nc-address" name="address" rows="2"></textarea>
+          <label for="nc-gstin">GSTIN</label>
+          <input type="text" id="nc-gstin" name="gstin">
+          <label for="nc-credit-limit">Credit limit</label>
+          <input type="number" id="nc-credit-limit" name="credit_limit" min="0" step="0.01">
+          <button type="submit">Save customer</button>
+        </form>
+      </details>
+
+      <h2>Items</h2>
+      <div class="field-row">
+        <label for="item-input">Barcode or product ID</label>
+        <input type="text" id="item-input" autocomplete="off">
+        <label for="item-qty">Qty</label>
+        <input type="number" id="item-qty" value="1" min="1" step="1">
+        <button type="button" id="item-add">Add item</button>
+      </div>
+
+      <table class="cart-table">
+        <thead>
+          <tr>
+            <th scope="col">Product</th>
+            <th scope="col">Qty</th>
+            <th scope="col">Rate</th>
+            <th scope="col">GST %</th>
+            <th scope="col">Amount</th>
+          </tr>
+        </thead>
+        <tbody id="cart"></tbody>
+      </table>
+      <div id="cart-totals"></div>
+
+      <div class="field-row">
+        <label for="pay-type">Payment type</label>
+        <select id="pay-type">
+          <option value="cash">Cash</option>
+          <option value="credit">Credit</option>
+        </select>
+      </div>
+      <div id="credit-info"></div>
+
+      <div class="actions">
+        <button type="button" id="bill-submit">Create bill</button>
+        <button type="button" id="bill-reset">Reset</button>
+      </div>
+      <div id="bill-result"></div>
+    </section>
+
+    <!-- Products -->
+    <section class="screen" id="screen-products">
+      <h1>Products</h1>
+
+      <div class="field-row">
+        <label for="prod-search">Search products</label>
+        <input type="search" id="prod-search" autocomplete="off">
+      </div>
+      <div id="prod-list"></div>
+
+      <h2>Add or edit product</h2>
+      <form id="prod-form">
+        <label for="p-product-id">Product ID</label>
+        <input type="text" id="p-product-id" name="product_id">
+        <label for="p-name">Name</label>
+        <input type="text" id="p-name" name="name" required>
+        <label for="p-category">Category</label>
+        <input type="text" id="p-category" name="category">
+        <label for="p-gst">GST %</label>
+        <input type="number" id="p-gst" name="gst_percent" min="0" step="0.01">
+        <label for="p-hsn">HSN code</label>
+        <input type="text" id="p-hsn" name="hsn_code">
+        <label for="p-billing-id">Billing ID</label>
+        <input type="text" id="p-billing-id" name="billing_id">
+        <label for="p-purchase-rate">Purchase rate</label>
+        <input type="number" id="p-purchase-rate" name="purchase_rate" min="0" step="0.01">
+        <label for="p-selling-rate">Selling rate</label>
+        <input type="number" id="p-selling-rate" name="selling_rate" min="0" step="0.01">
+        <label for="p-pre-order">Pre-order quantity</label>
+        <input type="number" id="p-pre-order" name="pre_order_qty" min="0" step="1">
+        <label for="p-barcodes">Barcodes (comma-separated)</label>
+        <input type="text" id="p-barcodes" name="barcodes">
+        <button type="submit">Save product</button>
+      </form>
+
+      <h2>Add barcode</h2>
+      <form id="barcode-form">
+        <label for="bc-product-id">Product ID</label>
+        <input type="text" id="bc-product-id" name="product_id" required>
+        <label for="bc-barcode">Barcode</label>
+        <input type="text" id="bc-barcode" name="barcode" required>
+        <button type="submit">Add barcode</button>
+      </form>
+    </section>
+
+    <!-- Customers -->
+    <section class="screen" id="screen-customers">
+      <h1>Customers</h1>
+      <div class="field-row">
+        <label for="cust-list-search">Search customers</label>
+        <input type="search" id="cust-list-search" autocomplete="off">
+      </div>
+      <div id="cust-list"></div>
+      <div id="cust-detail"></div>
+    </section>
+
+    <!-- Payments -->
+    <section class="screen" id="screen-payments">
+      <h1>Payments</h1>
+
+      <h2>Record payment</h2>
+      <form id="pay-form">
+        <label for="pay-customer-id">Customer ID</label>
+        <input type="text" id="pay-customer-id" name="customer_id" required>
+        <label for="pay-invoice-no">Invoice number</label>
+        <input type="text" id="pay-invoice-no" name="invoice_no">
+        <label for="pay-amount">Amount</label>
+        <input type="number" id="pay-amount" name="amount" step="0.01" min="0" required>
+        <label for="pay-date">Date</label>
+        <input type="date" id="pay-date" name="payment_date">
+        <button type="submit">Record payment</button>
+      </form>
+
+      <h2>Recent payments</h2>
+      <div id="pay-list"></div>
+
+      <h2>Receivables</h2>
+      <div id="receivables"></div>
+
+      <p><a href="/api/reports/payments.csv" download id="csv-link">Download payments CSV</a></p>
+    </section>
+
+    <!-- Expenses -->
+    <section class="screen" id="screen-expenses">
+      <h1>Expenses</h1>
+      <form id="exp-form">
+        <label for="e-name">Name</label>
+        <input type="text" id="e-name" name="name" required>
+        <label for="e-category">Category</label>
+        <input type="text" id="e-category" name="category">
+        <label for="e-kind">Kind</label>
+        <select id="e-kind" name="kind">
+          <option value="fixed">Fixed</option>
+          <option value="variable">Variable</option>
+          <option value="other">Other</option>
+        </select>
+        <label for="e-amount">Amount</label>
+        <input type="number" id="e-amount" name="amount" step="0.01" min="0" required>
+        <label for="e-date">Date</label>
+        <input type="date" id="e-date" name="expense_date">
+        <label for="e-description">Description</label>
+        <textarea id="e-description" name="description" rows="2"></textarea>
+        <label for="e-status">Status</label>
+        <select id="e-status" name="status">
+          <option value="pending" selected>Pending</option>
+          <option value="paid">Paid</option>
+        </select>
+        <button type="submit">Save expense</button>
+      </form>
+      <div id="exp-list"></div>
+    </section>
+
+    <!-- Purchases -->
+    <section class="screen" id="screen-purchases">
+      <h1>Purchases</h1>
+
+      <h2>Add supplier</h2>
+      <form id="sup-form">
+        <label for="s-name">Name</label>
+        <input type="text" id="s-name" name="name" required>
+        <label for="s-phone">Phone</label>
+        <input type="tel" id="s-phone" name="phone">
+        <label for="s-address">Address</label>
+        <textarea id="s-address" name="address" rows="2"></textarea>
+        <button type="submit">Save supplier</button>
+      </form>
+      <div id="sup-list"></div>
+
+      <h2>New purchase</h2>
+      <form id="purch-form">
+        <label for="pu-supplier">Supplier</label>
+        <select id="pu-supplier" name="supplier_id" required></select>
+        <label for="pu-date">Date</label>
+        <input type="date" id="pu-date" name="purchase_date">
+        <div id="pu-lines"></div>
+        <button type="button" id="pu-add-line">Add line</button>
+        <label for="pu-amount-paid">Amount paid</label>
+        <input type="number" id="pu-amount-paid" name="amount_paid" step="0.01" min="0">
+        <button type="submit">Save purchase</button>
+      </form>
+      <div id="purch-list"></div>
+    </section>
+
+    <!-- Cash flow -->
+    <section class="screen" id="screen-cashflow">
+      <h1>Cash Flow</h1>
+      <div class="toolbar">
+        <label for="cf-period">Period</label>
+        <select id="cf-period">
+          <option value="today">Today</option>
+          <option value="month" selected>Month</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+      <div class="toolbar">
+        <label for="cf-opening">Opening balance</label>
+        <input type="number" id="cf-opening" step="0.01">
+        <button type="button" id="cf-opening-save">Save opening balance</button>
+      </div>
+      <div id="cf-table"></div>
+    </section>
+
+    <!-- Reports -->
+    <section class="screen" id="screen-reports">
+      <h1>Reports</h1>
+      <p><a href="/api/reports/payments.csv" download id="csv-download">Download payments report (CSV)</a></p>
+      <div id="report-summary"></div>
+    </section>
+
+  </main>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="form-error" role="alert"></div>
+
+<script src="/static/app.js" defer></script>
+</body>
+</html>
